@@ -1,0 +1,72 @@
+//--------------------------------------------------------------------------------------------------
+// Simulation parameters
+//--------------------------------------------------------------------------------------------------
+
+to_continue		= 0		// 0=new simulation, 1=continue simulation
+max_cpu_time		= 0		// Maximum CPU running time in seconds. If 0 (default), then cpu time has no limit.
+
+//--------------------------------------------------------------------------------------------------
+// Physical model parameters
+//--------------------------------------------------------------------------------------------------
+
+tidal_model		= 4		// 0=none, 1=conservative, 2=linear, 3=creep direct, 4=creep tidymess
+pn_order		= 0		// Post-Newtonian order: 0=none, 1=1pn, 2=1+2pn, 25=1+2+2.5pn    
+B_braking		= 0		// Magnetic braking. 0=off, 1=on
+
+collisions		= 0		// 0=off, 1=flag, 2=exception, 3=replace
+roche_limit		= 0		// 0=off, 1=flag, 2=exception
+breakup_speed		= 0		// Centrifugal breakup speed detection. 0=off, 1=flag, 2=exception
+
+//--------------------------------------------------------------------------------------------------
+// Unit system
+//--------------------------------------------------------------------------------------------------
+
+mass_unit		= [Msun]	// Unit of mass in output: []=Nbody unit, [g], [kg], [Mearth], [Mjupiter], [Msun]
+length_unit		= [au]		// Unit of length in output: []=Nbody unit, [m], [km], [Rsun], [au], [pc]
+time_unit		= [yr]		// Unit of time for 1) t_begin, t_end, and 2) unit of time in output: []=Nbody unit, [s], [hr], [day], [yr], [Myr], [Gyr]  
+speed_unit		= [au/yr]	// Unit of speed in output: []=Nbody unit, [m/s], [km/s], [km/hr], [km/hour], [au/day], [au/yr], [au/year], [pc/Myr]
+
+speed_of_light		= 0		// Speed of light in N-body units. Only used in conjunction with N-body units and pn_order>0, otherwise equal to c.
+
+//--------------------------------------------------------------------------------------------------
+// Initial condition parameters
+//--------------------------------------------------------------------------------------------------
+
+file_ic		= sun_earth_moon.ic	// initial condition file
+
+orbit_coor		= 1		// 0=cartesian inertial, 1=elliptical astrocentric, 2=elliptical jacobian
+spin_coor		= 2		// 0=absolute in inertial frame, 1=relative to its orbit; body 0 in the inertial frame, 2=relative to its orbit; body 0 relative to innermost orbit
+
+initial_shape		= 0		// 0=sphere, 1=equilibrium
+num_body		= 0		// 0=all, num_body+1=number of bodies to include  
+
+//--------------------------------------------------------------------------------------------------
+// Output parameters
+//--------------------------------------------------------------------------------------------------
+
+snapshot_mode		= 0		// 0=linear interval (default), 1=logarithmic interval, 2=variable interval 
+n_snapshot		= 1e2		// Total number of snapshots between t_begin and t_end (linear or in log10), or output a snapshot every fixed number (n_snapshot) of integration steps (variable) 
+
+output_dir		= data/	// Output directory; default is 'data/'. If left blank or set to '/', then file_ic will be adopted without the extension.  
+overwrite		= 1		// overwrite existing files: 0=no, 1=yes
+
+output_format		= 0		// 0=file per body, 1=file per snapshot, 2=single file
+output_info		= 1		// 0=time-varying quantities, 1=all quantities
+output_coor		= 0		// 0=cartesian inertial
+
+output_diag		= 0		// 0=no (default), 1=yes: output diagnostics, such as E and L, are written to a separate diagnostics file with extension '.diag'
+output_terminal	= 1		// Display progress of simulation in terminal window. 0=no, 1=yes
+    
+//--------------------------------------------------------------------------------------------------
+// Integration parameters
+//--------------------------------------------------------------------------------------------------
+
+t_begin		= 0		// begin time in units given by time_unit 
+t_end			= 1e2		// final time in units given by time_unit
+
+dt_mode		= 2		// 0=constant dt, 1=adaptive dt, 2=adaptive, weighted dt
+dt_const		= 0.015625	// constant time step in units given by time_unit (only used if dt_mode=0)
+eta			= 0.0625	// accuracy parameter; timestep multiplication factor, default=0.0625 (only used if dt_mode>0)
+
+n_iter			= 1		// Number of iterations to improve reversibility (default=1)
+

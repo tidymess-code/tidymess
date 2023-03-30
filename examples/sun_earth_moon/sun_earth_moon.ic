@@ -1,0 +1,22 @@
+Name		Earth		Moon		Sun					
+
+mass[kg]	5.9724e24	0.07346e24	1.989e30
+R[km]		6371.		1737.4		695700.
+xi		0.3308		0.394		0.070	
+
+kf		0.933		0		0	
+tau[s]		1		0		0	
+
+lod[hour]	5.0	 	0.0		0.0
+obl[deg]	0.0		0.0		0.0		
+psi[deg]	0.0		0.0		0.0			
+
+a[km]				22298.5	149598073.
+e				0.01		0.0
+I				0		10
+O				0		0
+w				0		0
+M				0		0
+
+Adopted from Touma & Wisdom (1998) and Williams (2016). 
+

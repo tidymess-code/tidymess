@@ -1,0 +1,24 @@
+Name		Earth		Moon					
+
+mass[kg]	5.9724e24	0.07346e24
+R[km]		6371.		1737.4		
+xi		0.3308		0.394			
+
+kf		0.933		0			
+tau[s]		180		0			
+
+lod[day]	1.0	 	27.322		
+obl[deg]	0.0		0.0				
+psi[deg]	0.0		0.0				
+
+database: IMCCE INPOP19a
+reference plane: Geocentric, equatorial, J2000
+Epoque: 2021-06-21T21:43:31.044	
+
+a[km]				0.3844e6
+e				0.0
+I				0
+O				0
+w				0
+M				0
+

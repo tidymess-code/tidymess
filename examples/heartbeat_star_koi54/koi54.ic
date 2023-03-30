@@ -1,0 +1,22 @@
+Name		Primary	Secondary					
+
+mass[MSun]	2.33		2.39
+R[RSun]	2.20		2.33		
+xi		0.052		0.052			
+
+kf		0.012		0.012		
+tau[yr]	0.0001		0.0001		
+
+lod[day]	0.728862612579	2.55101914403		
+obl[deg]	0.0		0.0				
+psi[deg]	0.0		0.0					
+
+a[AU]				0.3956
+e				0.8335
+I[deg]				5.50
+O[deg]				0
+w[deg]				36.70
+M[deg]				180
+
+# Reference: Welsh et al. (2011)
+
