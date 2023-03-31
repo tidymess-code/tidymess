@@ -186,6 +186,7 @@ int main(int argc, char* argv[]) {
         bodies.clear();
         for(int i=0; i<N; i++) {
             bodies.push_back(bodies_bin[i]);
+            bodies[i].update_aux_properties();
         }
         
         tidymess.set_model_time(t);
