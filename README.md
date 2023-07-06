@@ -10,9 +10,9 @@ It is an N-body code with the following novel features:
 
 Other physical phenomena included:
 
-- General relativity corrections up to 2.5 PN
-- Stellat magnetic braking
-- Mergers and collisions
+- general relativity corrections up to 2.5 PN
+- stellat magnetic braking
+- mergers and collisions
 
 Further details can be found in the code announcement paper:
 
