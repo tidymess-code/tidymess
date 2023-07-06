@@ -6,9 +6,17 @@ It is an N-body code with the following novel features:
 - the mass distribution of each body is described by its inertia tensor
 - the deformation of a body has contributions from the centrifugal force and tidal force
 - the deformation follows the tidal Creep model 
-- the orbits, spins and inertia tensors are integrated directly and self-consistently.
+- the orbits, spins and inertia tensors are integrated directly and self-consistently
 
-Further details can be found in the code announcement paper: Boekholt & Correia (MNRAS, 2023).
+Other physical phenomena included:
+
+- General relativity corrections up to 2.5 PN
+- Stellat magnetic braking
+- Mergers and collisions
+
+Further details can be found in the code announcement paper:
+
+Boekholt & Correia (MNRAS 2023, vol. 522, pp. 2885–2900).
  
 TIDYMESS is a C++ code, developed and tested within the Ubuntu and Mac environments.
 In order to get started: 
