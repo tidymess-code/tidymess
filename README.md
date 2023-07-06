@@ -11,7 +11,7 @@ It is an N-body code with the following novel features:
 Other physical phenomena included:
 
 - general relativity corrections up to 2.5 PN
-- stellat magnetic braking
+- stellar magnetic braking
 - mergers and collisions
 
 Further details can be found in the code announcement paper:
