@@ -118,24 +118,61 @@ int main(int argc, char* argv[]) {
     double dt0_log = 0;
     double fmul_log = 0;
 
-    if(snapshot_mode == 0) {
+    if(snapshot_mode == 0) { // Constant time interval
         double t_sim = t_end - t_begin;
-        dt_snapshot = t_sim / N_snapshot;
+        dt_snapshot = t_sim / N_snapshot;        
     }
-    else if(snapshot_mode == 1) {
-        double t_sim = abs(t_end - t_begin);        
+    else if(snapshot_mode == 1) { // Logarithmic time interval
+        // Assume t_end > t_begin
+        if(t_begin == 0) {
+            if(t_end > 1) {
+                double base_log = init.t_end_phys;
 
-        double dt_ratio = 1000;
-        fmul_log = pow(10., log10(dt_ratio)/N_snapshot);
-
-        double S = 0;
-        for(int i=0; i<N_snapshot; i++) {
-            S += pow(fmul_log, i);
+                double tmin = t_end;
+                double tmax = t_end*base_log;
+                double logtmin = log(tmin);
+                double logtmax = log(tmax);                
+                double dlogt = (logtmax-logtmin)/N_snapshot;
+                
+                logtmax = log(t_end);
+                logtmin = logtmax - N_snapshot*dlogt;
+                
+                dt0_log = logtmin;
+                fmul_log = dlogt;
+            }
+            else {
+                double T = t_end-t_begin;
+                
+                double tmin = 1;
+                double tmax = tmin + T;
+                double logtmin = log(tmin);
+                double logtmax = log(tmax);
+                
+                double dlogt = (logtmax-logtmin)/N_snapshot;
+                
+                logtmax = log(t_end);
+                logtmin = logtmax - N_snapshot*dlogt;
+                
+                dt0_log = logtmin;
+                fmul_log = dlogt;            
+            } 
         }
-
-        dt0_log = t_sim/S;          
+        else {
+            double tmin = t_begin;
+            double tmax = t_end;
+            double logtmin = log(tmin);
+            double logtmax = log(tmax);
+                
+            double dlogt = (logtmax-logtmin)/N_snapshot;
+                
+            logtmax = log(t_end);
+            logtmin = logtmax - N_snapshot*dlogt;
+                
+            dt0_log = logtmin;
+            fmul_log = dlogt;
+        }
     }
-
+    
     //---------------------------------------------------------------------
 
     array<double, 3> r0 = tidymess.get_center_of_mass();
@@ -183,17 +220,20 @@ int main(int argc, char* argv[]) {
         dt0_log = dt0_log_bin;
         fmul_log = fmul_log_bin;
         
-        bodies.clear();
+        bodies = bodies_bin;
         for(int i=0; i<N; i++) {
-            bodies.push_back(bodies_bin[i]);
             bodies[i].update_aux_properties();
-        }
+        }        
         
         tidymess.set_model_time(t);
         tidymess.set_particles(bodies);
         
         tidymess.set_dt_prev(dt_prev);
         tidymess.set_num_integration_step(num_integration_step);
+        
+        t_begin = t;
+        num_snapshot = 0;
+        dt0_log = log(t_begin);
     }
     else {
         N = bodies.size();
@@ -212,6 +252,8 @@ int main(int argc, char* argv[]) {
             output.write_diag(t, t_cpu, num_integration_step, N, r0, v0, L0_orb, L0_spin, Ekin0_orb, Epot0, Ekin0_spin); 
         }
     }
+                
+cerr << dt0_log << " " << fmul_log << " " << num_snapshot << endl;                
                 
     //---------------------------------------------------------------------
     
@@ -266,8 +308,8 @@ int main(int argc, char* argv[]) {
             tidymess.evolve_model(t);
         }
         else if(snapshot_mode == 1) {
-            double dt = dt_sgn * dt0_log * pow(fmul_log, num_snapshot-1);
-            t += dt;
+            double logt = dt0_log + num_snapshot * fmul_log;    
+            t = exp(logt);    
 
             if(dt_pos) {
                 if(t > t_end) {

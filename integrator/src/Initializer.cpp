@@ -1817,6 +1817,7 @@ void Initializer::process_args(int argc, vector<string> &args) {
                 }
                 else if(str == "t_end") {
                     t_end = stod(args[i+1]);
+                    t_end_phys = t_end;
                 }
                 else if(str == "dt_mode") {
                     dt_mode = stoi(args[i+1]); 
