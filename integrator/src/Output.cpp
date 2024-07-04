@@ -1095,7 +1095,7 @@ void Output::write_snapshot_per_body_compact_nbody(double t, double tcpu, vector
     if(firstWrite) firstWrite = false;
 }
 
-void Output::save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, int &collision_flag, int &roche_flag, int &breakup_flag, vector<Body> &bodies, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) {
+void Output::save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, int &collision_flag, int &roche_flag, int &breakup_flag, vector<Body> &bodies, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) {
     string bin_name = file_out + ".bin" + to_string(bin_number);
     bin_number = (bin_number + 1) % 2;
 
@@ -1106,6 +1106,7 @@ void Output::save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, in
     fb.write((char*)&N, sizeof (int));
     fb.write((char*)&tcpu, sizeof (double));
     fb.write((char*)&dt_prev, sizeof (double));
+    fb.write((char*)&t_end, sizeof (double));
     fb.write((char*)&num_integration_steps, sizeof (int));
      
     fb.write((char*)&collision_flag, sizeof (int));
@@ -1565,11 +1566,11 @@ void Output::save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, in
         
     fb.close();
 }
-void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, vector<Body> &bodies, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) {
+void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, vector<Body> &bodies, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) {
     string bin0_name = file_out + ".bin0";
 
     bool isComplete0;
-    double t0, tcpu0, dt_prev0;
+    double t0, tcpu0, dt_prev0, t_end0;
     int N0;
     vector<Body> bodies0;
     bool firstWrite0;
@@ -1581,7 +1582,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
     double dt_snapshot0, dt0_log0, fmul_log0;
     
     try {
-        read_from_binary(t0, N0, tcpu0, dt_prev0, num_integration_steps0, bodies0, bin0_name, firstWrite0, firstWriteDiag0, file_counter0, bin_number0, collision_flag0, roche_flag0, breakup_flag0, dt_snapshot0, dt0_log0, fmul_log0, num_snapshot0); 
+        read_from_binary(t0, N0, tcpu0, dt_prev0, t_end0, num_integration_steps0, bodies0, bin0_name, firstWrite0, firstWriteDiag0, file_counter0, bin_number0, collision_flag0, roche_flag0, breakup_flag0, dt_snapshot0, dt0_log0, fmul_log0, num_snapshot0); 
         isComplete0 = true;
     }
     catch(const std::exception&) {
@@ -1591,7 +1592,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
     string bin1_name = file_out + ".bin1";
 
     bool isComplete1;
-    double t1, tcpu1, dt_prev1;
+    double t1, tcpu1, dt_prev1, t_end1;
     int N1;
     vector<Body> bodies1;
     bool firstWrite1;
@@ -1603,7 +1604,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
     double dt_snapshot1, dt0_log1, fmul_log1;
     
     try {
-        read_from_binary(t1, N1, tcpu1, dt_prev1, num_integration_steps1, bodies1, bin1_name, firstWrite1, firstWriteDiag1, file_counter1, bin_number1, collision_flag1, roche_flag1, breakup_flag1, dt_snapshot1, dt0_log1, fmul_log1, num_snapshot1); 
+        read_from_binary(t1, N1, tcpu1, dt_prev1, t_end1, num_integration_steps1, bodies1, bin1_name, firstWrite1, firstWriteDiag1, file_counter1, bin_number1, collision_flag1, roche_flag1, breakup_flag1, dt_snapshot1, dt0_log1, fmul_log1, num_snapshot1); 
         isComplete1 = true;
     }
     catch(const std::exception&) {
@@ -1617,6 +1618,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
                 N = N1;
                 tcpu = tcpu1;
                 dt_prev = dt_prev1;
+                t_end = t_end1;
                 bodies = bodies1;
                 firstWrite = firstWrite1;
                 firstWriteDiag = firstWriteDiag1;
@@ -1636,6 +1638,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
                 N = N0;
                 tcpu = tcpu0;
                 dt_prev = dt_prev0;
+                t_end = t_end0;
                 bodies = bodies0;            
                 firstWrite = firstWrite0;
                 firstWriteDiag = firstWriteDiag0;
@@ -1656,6 +1659,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
             N = N0;
             tcpu = tcpu0;
             dt_prev = dt_prev0;
+            t_end = t_end0;
             bodies = bodies0;   
             firstWrite = firstWrite0;
             firstWriteDiag = firstWriteDiag0;
@@ -1677,6 +1681,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
             N = N1;
             tcpu = tcpu1;
             dt_prev = dt_prev1;
+            t_end = t_end1;
             bodies = bodies1;
             firstWrite = firstWrite1;
             firstWriteDiag = firstWriteDiag1;
@@ -1699,7 +1704,7 @@ void Output::read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev
         }    
     }
 }
-void Output::read_from_binary(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, vector<Body> &bodies, string &bin_name, bool &myfirstWrite, bool &myfirstWriteDiag, int &myfile_counter, int &mybin_number, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) { 
+void Output::read_from_binary(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, vector<Body> &bodies, string &bin_name, bool &myfirstWrite, bool &myfirstWriteDiag, int &myfile_counter, int &mybin_number, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot) { 
     fstream fb(bin_name, ios::in | ios::out | ios::binary);
 
     // header
@@ -1707,6 +1712,7 @@ void Output::read_from_binary(double &t, int &N, double &tcpu, double &dt_prev, 
     fb.read((char*)&N, sizeof (int));
     fb.read((char*)&tcpu, sizeof (double));
     fb.read((char*)&dt_prev, sizeof (double));
+    fb.read((char*)&t_end, sizeof (double));
     fb.read((char*)&num_integration_steps, sizeof (int));
 
     fb.read((char*)&collision_flag, sizeof (int));

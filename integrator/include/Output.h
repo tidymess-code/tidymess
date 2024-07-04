@@ -88,9 +88,9 @@ class Output {
     void write_snapshot_per_body_nbody(double t, double tcpu, vector<Body> &bodies);
     void write_snapshot_per_body_compact_nbody(double t, double tcpu, vector<Body> &bodies);
 
-    void save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, int &collision_flag, int &roche_flag, int &breakup_flag, vector<Body> &bodies, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
-    void read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, vector<Body> &bodies, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
-    void read_from_binary(double &t, int &N, double &tcpu, double &dt_prev, int &num_integration_steps, vector<Body> &bodies, string &bin_name, bool &myfirstWrite, bool &myfirstWriteDiag, int &myfile_counter, int &mybin_number, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
+    void save_to_binary(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, int &collision_flag, int &roche_flag, int &breakup_flag, vector<Body> &bodies, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
+    void read_binary_backup(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, vector<Body> &bodies, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
+    void read_from_binary(double &t, int &N, double &tcpu, double &dt_prev, double &t_end, int &num_integration_steps, vector<Body> &bodies, string &bin_name, bool &myfirstWrite, bool &myfirstWriteDiag, int &myfile_counter, int &mybin_number, int &collision_flag, int &roche_flag, int &breakup_flag, double &dt_snapshot, double &dt0_log, double &fmul_log, int &num_snapshot);
             
     // Diagnostics log
     void write_log(int argc, char* argv[], double t, double tcpu, int &num_integration_steps, int N0, int N1, double dr, double dv, double dLx, double dLy, double dLz, double dLx_rel, double dLy_rel, double dLz_rel, double dL_abs, double dL_rel, double dE_abs, double dE_rel, double x0, int outcome_type, int collision_flag, int roche_flag, int breakup_flag);

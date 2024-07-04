@@ -90,7 +90,8 @@ int main(int argc, char* argv[]) {
 
     int snapshot_mode  = init.snapshot_mode;
     int N_snapshot     = init.n_snapshot;
-
+    double t1_log      = init.t1_code;
+    
     vector<Body> bodies = tidymess.get_particles();
     int N_init = bodies.size();
 
@@ -123,39 +124,20 @@ int main(int argc, char* argv[]) {
         dt_snapshot = t_sim / N_snapshot;        
     }
     else if(snapshot_mode == 1) { // Logarithmic time interval
-        // Assume t_end > t_begin
+        // Assume t_end > t_begin >= 0
         if(t_begin == 0) {
-            if(t_end > 1) {
-                double base_log = init.t_end_phys;
-
-                double tmin = t_end;
-                double tmax = t_end*base_log;
-                double logtmin = log(tmin);
-                double logtmax = log(tmax);                
-                double dlogt = (logtmax-logtmin)/N_snapshot;
+            double tmin = t1_log;
+            double tmax = t_end;
+            double logtmin = log(tmin);
+            double logtmax = log(tmax);
+               
+            double dlogt = (logtmax-logtmin)/N_snapshot;
                 
-                logtmax = log(t_end);
-                logtmin = logtmax - N_snapshot*dlogt;
+            logtmax = log(t_end);
+            logtmin = logtmax - (N_snapshot+1)*dlogt;
                 
-                dt0_log = logtmin;
-                fmul_log = dlogt;
-            }
-            else {
-                double T = t_end-t_begin;
-                
-                double tmin = 1;
-                double tmax = tmin + T;
-                double logtmin = log(tmin);
-                double logtmax = log(tmax);
-                
-                double dlogt = (logtmax-logtmin)/N_snapshot;
-                
-                logtmax = log(t_end);
-                logtmin = logtmax - N_snapshot*dlogt;
-                
-                dt0_log = logtmin;
-                fmul_log = dlogt;            
-            } 
+            dt0_log = logtmin;
+            fmul_log = dlogt;
         }
         else {
             double tmin = t_begin;
@@ -198,27 +180,23 @@ int main(int argc, char* argv[]) {
         double t_bin;
         int N_bin;
         double tcpu_bin;
-        double dt_prev_bin;
+        double dt_prev_bin, t_end_bin;
         vector<Body> bodies_bin;
         int num_snapshot_bin;
         int num_integration_step_bin;
         int collision_flag_bin, roche_flag_bin, breakup_flag_bin;
         double dt_snapshot_bin, dt0_log_bin, fmul_log_bin;
 
-        output.read_binary_backup(t_bin, N_bin, tcpu_bin, dt_prev_bin, num_integration_step_bin, bodies_bin, collision_flag_bin, roche_flag_bin, breakup_flag_bin, dt_snapshot_bin, dt0_log_bin, fmul_log_bin, num_snapshot_bin);
+        output.read_binary_backup(t_bin, N_bin, tcpu_bin, dt_prev_bin, t_end_bin, num_integration_step_bin, bodies_bin, collision_flag_bin, roche_flag_bin, breakup_flag_bin, dt_snapshot_bin, dt0_log_bin, fmul_log_bin, num_snapshot_bin);
 
         t = t_bin;
         N = N_bin;
         tcpu_offset = tcpu_bin;
         dt_prev = dt_prev_bin;
-        num_snapshot = num_snapshot_bin;
         num_integration_step = num_integration_step_bin;
         collision_flag = collision_flag_bin;
         roche_flag = roche_flag_bin;
         breakup_flag = breakup_flag_bin;
-        dt_snapshot = dt_snapshot_bin;
-        dt0_log = dt0_log_bin;
-        fmul_log = fmul_log_bin;
         
         bodies = bodies_bin;
         for(int i=0; i<N; i++) {
@@ -230,10 +208,31 @@ int main(int argc, char* argv[]) {
         
         tidymess.set_dt_prev(dt_prev);
         tidymess.set_num_integration_step(num_integration_step);
-        
+
+        num_snapshot = 0;        
         t_begin = t;
-        num_snapshot = 0;
         dt0_log = log(t_begin);
+
+        if(t_end == t_end_bin) { // Finish a simulation
+            dt_snapshot = dt_snapshot_bin;
+            fmul_log = fmul_log_bin;
+        }
+        else { // Extend a simulation
+            double t_sim = t_end - t_begin;
+            dt_snapshot = t_sim / N_snapshot;        
+
+            double tmin = t_begin;
+            double tmax = t_end;
+            double logtmin = log(tmin);
+            double logtmax = log(tmax);
+                
+            double dlogt = (logtmax-logtmin)/N_snapshot;
+                
+            logtmax = log(t_end);
+            logtmin = logtmax - N_snapshot*dlogt;
+                
+            fmul_log = dlogt;
+        }
     }
     else {
         N = bodies.size();
@@ -246,14 +245,12 @@ int main(int argc, char* argv[]) {
         output.backup_file(init.file_par);
         output.backup_file(init.file_ic);
 
-        output.save_to_binary(t, N, t_cpu, dt_prev, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
+        output.save_to_binary(t, N, t_cpu, dt_prev, t_end, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
 
         if(init.output_diag) {
             output.write_diag(t, t_cpu, num_integration_step, N, r0, v0, L0_orb, L0_spin, Ekin0_orb, Epot0, Ekin0_spin); 
         }
     }
-                
-cerr << dt0_log << " " << fmul_log << " " << num_snapshot << endl;                
                 
     //---------------------------------------------------------------------
     
@@ -342,7 +339,7 @@ cerr << dt0_log << " " << fmul_log << " " << num_snapshot << endl;
         dt_prev = tidymess.get_dt_prev();
         num_integration_step = tidymess.get_num_integration_step();
 
-        output.save_to_binary(t, N, t_cpu, dt_prev, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
+        output.save_to_binary(t, N, t_cpu, dt_prev, t_end, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
 
         // Store diagnostics
         if(init.output_diag) {
@@ -474,7 +471,7 @@ cerr << dt0_log << " " << fmul_log << " " << num_snapshot << endl;
     dt_prev = tidymess.get_dt_prev();
     num_integration_step = tidymess.get_num_integration_step();
  
-    output.save_to_binary(t, N, t_cpu, dt_prev, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
+    output.save_to_binary(t, N, t_cpu, dt_prev, t_end, num_integration_step, collision_flag, roche_flag, breakup_flag, bodies, dt_snapshot, dt0_log, fmul_log, num_snapshot);
 
     // Clean up
     timer.stop();

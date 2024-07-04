@@ -102,7 +102,8 @@ class Initializer {
     vector< array<double, 15> > data_ic;    
     vector<int> id;
     vector<string> name;
-    double t_end_phys;
+
+    double t1_code;
 
     // Constructor
     Initializer();

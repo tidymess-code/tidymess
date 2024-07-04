@@ -82,7 +82,9 @@ void Initializer::set_to_default_values() {
     N = 0;
     data_ic.clear();    
     id.clear();
-    name.clear();    
+    name.clear();
+    
+    t1_code = 1;    
 }
 
 double Initializer::get_Cm() {
@@ -527,6 +529,39 @@ void Initializer::parse_arguments(int argc, char* argv[]) {
     t_begin     = units.convert_time_to_standard(t_begin, time_unit);    
     t_end       = units.convert_time_to_standard(t_end, time_unit);    
     dt_const    = units.convert_time_to_standard(dt_const, time_unit);    
+    
+    // Determine first logarithmic step
+    if(physical_units) {
+        if(t_begin == 0) {
+            if(t_end > 1) {
+                t1_code = 1;
+            }
+            else {
+                if(t_end * 365.25 > 1) {
+                    t1_code = 1./365.25;
+                }
+                else if(t_end * 365.25 * 24 > 1) {
+                    t1_code = 1./(365.25 * 24);
+                }
+                else if(t_end * 365.25 * 24 * 60 * 60 > 1) {
+                    t1_code = 1./(365.25 * 24 * 60 * 60);
+                }
+                else {
+                    t1_code = 1e-6 * t_end;
+                }
+            }
+        }
+    }
+    else {
+        if(t_begin == 0) {
+            if(t_end > 1) {
+                t1_code = 1;
+            }
+            else {
+                t1_code = 1e-6 * t_end;
+            }
+        }
+    }    
         
     // Process initial conditions and store in data_ic container
     data_ic.clear();
@@ -774,6 +809,9 @@ void Initializer::parse_arguments(int argc, char* argv[]) {
             data_ic[i][13] = units.convert_speed_from_standard_to_code(data_ic[i][13]);
             data_ic[i][14] = units.convert_speed_from_standard_to_code(data_ic[i][14]);
         }        
+
+        // Logarithmic first step
+        t1_code = units.convert_time_from_standard_to_code(t1_code);   
     }    
 
     // Convert units to dimensionless units and store scale factors
@@ -813,6 +851,9 @@ void Initializer::parse_arguments(int argc, char* argv[]) {
     dt_const /= units.Ct;
 
     speed_of_light /= units.Cv;
+
+    // Logarithmic first step
+    t1_code /= units.Ct;
 
     for(int i=0; i<N; i++) {
         data_ic[i][0] /= units.Cm;
@@ -1817,7 +1858,6 @@ void Initializer::process_args(int argc, vector<string> &args) {
                 }
                 else if(str == "t_end") {
                     t_end = stod(args[i+1]);
-                    t_end_phys = t_end;
                 }
                 else if(str == "dt_mode") {
                     dt_mode = stoi(args[i+1]); 
