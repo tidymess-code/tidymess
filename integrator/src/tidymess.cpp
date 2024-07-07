@@ -252,6 +252,8 @@ int main(int argc, char* argv[]) {
         }
     }
                 
+    if(t == 0 && init.snapshot_mode == 1) N_snapshot++;            
+                
     //---------------------------------------------------------------------
     
     Banner banner;
@@ -281,7 +283,7 @@ int main(int argc, char* argv[]) {
     timer.start();
 
     // Time integration
-    while(true) {
+    while(num_snapshot < N_snapshot) {
 
         num_snapshot++;
 
@@ -289,6 +291,7 @@ int main(int argc, char* argv[]) {
         if(snapshot_mode == 0) {
             t = t_begin + num_snapshot * dt_snapshot;
             
+            /*
             if(dt_pos) {
                 if(t > t_end) {
                     t = t_end;
@@ -301,6 +304,7 @@ int main(int argc, char* argv[]) {
                     num_snapshot--;
                 }
             }
+            */
                         
             tidymess.evolve_model(t);
         }
@@ -308,6 +312,9 @@ int main(int argc, char* argv[]) {
             double logt = dt0_log + num_snapshot * fmul_log;    
             t = exp(logt);    
 
+cerr << num_snapshot << " / " << N_snapshot << endl;
+
+            /* 
             if(dt_pos) {
                 if(t > t_end) {
                     t = t_end;
@@ -320,14 +327,17 @@ int main(int argc, char* argv[]) {
                     num_snapshot--;
                 }
             }
-
+            */
+            
             tidymess.evolve_model(t);
         }
         else {
             tidymess.evolve_model(N_snapshot);
+
+            t = tidymess.get_model_time();
         }
 
-        t = tidymess.get_model_time();
+        //t = tidymess.get_model_time();
         bodies = tidymess.get_particles();
 
         // Store a snapshot

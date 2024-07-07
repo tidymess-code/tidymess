@@ -67,6 +67,9 @@ void Evolver_direct_pn::evolve_model(double &t, double &t_end, vector<Body> &bod
 
         dt_step = timestep->get_timestep(bodies);
 
+        if(dt_step > 0 && t+dt_step > t_end) dt_step = t_end-t;
+        else if(dt_step < 0 && t+dt_step < t_end) dt_step = t_end-t;    
+
         //----------------------------------------------
 
         mclachlan_step(bodies, dt_step, force);

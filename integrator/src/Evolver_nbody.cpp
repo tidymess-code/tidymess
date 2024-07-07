@@ -23,9 +23,14 @@ void Evolver_nbody::evolve_model(double &t, double &t_end, vector<Body> &bodies,
     bool toContinue = true;
 
     num_integration_step = 0;
+
+    toContinue = stopping_condition_time(t, t_end, timestep->dt_sgn);
         
     while(toContinue) {
         dt_step = timestep->get_timestep(bodies);
+
+        if(dt_step > 0 && t+dt_step > t_end) dt_step = t_end-t;
+        else if(dt_step < 0 && t+dt_step < t_end) dt_step = t_end-t;    
 
         //----------------------------------------------
 
