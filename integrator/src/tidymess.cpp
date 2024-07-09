@@ -133,11 +133,13 @@ int main(int argc, char* argv[]) {
                
             double dlogt = (logtmax-logtmin)/N_snapshot;
                 
-            logtmax = log(t_end);
-            logtmin = logtmax - (N_snapshot+1)*dlogt;
+            //logtmax = log(t_end);
+            //logtmin = logtmax - (N_snapshot+1)*dlogt;
+            logtmin = logtmin - dlogt;
                 
             dt0_log = logtmin;
             fmul_log = dlogt;
+
         }
         else {
             double tmin = t_begin;
@@ -146,12 +148,10 @@ int main(int argc, char* argv[]) {
             double logtmax = log(tmax);
                 
             double dlogt = (logtmax-logtmin)/N_snapshot;
-                
-            logtmax = log(t_end);
-            logtmin = logtmax - N_snapshot*dlogt;
-                
+                                
             dt0_log = logtmin;
             fmul_log = dlogt;
+
         }
     }
     
@@ -199,9 +199,9 @@ int main(int argc, char* argv[]) {
         breakup_flag = breakup_flag_bin;
         
         bodies = bodies_bin;
-        for(int i=0; i<N; i++) {
-            bodies[i].update_aux_properties();
-        }        
+        //for(int i=0; i<N; i++) {
+        //    bodies[i].update_aux_properties();
+        //}        
         
         tidymess.set_model_time(t);
         tidymess.set_particles(bodies);
@@ -210,7 +210,7 @@ int main(int argc, char* argv[]) {
         tidymess.set_num_integration_step(num_integration_step);
 
         num_snapshot = 0;        
-        t_begin = t;
+        t_begin = t; //init.t_begin; // t;
         dt0_log = log(t_begin);
 
         if(t_end == t_end_bin) { // Finish a simulation
@@ -218,20 +218,20 @@ int main(int argc, char* argv[]) {
             fmul_log = fmul_log_bin;
         }
         else { // Extend a simulation
-            double t_sim = t_end - t_begin;
-            dt_snapshot = t_sim / N_snapshot;        
+            //double t_sim = t_end - t_begin;
+            //dt_snapshot = t_sim / N_snapshot;        
 
-            double tmin = t_begin;
-            double tmax = t_end;
-            double logtmin = log(tmin);
-            double logtmax = log(tmax);
+            dt_snapshot = dt_snapshot_bin;
+
+            //double tmin = t_begin; //t;
+            //double tmax = t_end;
+            //double logtmin = log(tmin);
+            //double logtmax = log(tmax);
                 
-            double dlogt = (logtmax-logtmin)/N_snapshot;
-                
-            logtmax = log(t_end);
-            logtmin = logtmax - N_snapshot*dlogt;
-                
-            fmul_log = dlogt;
+            //double dlogt = (logtmax-logtmin)/N_snapshot;                  
+            //fmul_log = dlogt;
+
+            fmul_log = fmul_log_bin;
         }
     }
     else {
@@ -290,7 +290,6 @@ int main(int argc, char* argv[]) {
         // Integration step
         if(snapshot_mode == 0) {
             t = t_begin + num_snapshot * dt_snapshot;
-            
             /*
             if(dt_pos) {
                 if(t > t_end) {
@@ -303,32 +302,17 @@ int main(int argc, char* argv[]) {
                     t = t_end;
                     num_snapshot--;
                 }
-            }
-            */
-                        
+            }   
+            */            
             tidymess.evolve_model(t);
         }
         else if(snapshot_mode == 1) {
-            double logt = dt0_log + num_snapshot * fmul_log;    
-            t = exp(logt);    
-
-cerr << num_snapshot << " / " << N_snapshot << endl;
-
-            /* 
-            if(dt_pos) {
-                if(t > t_end) {
-                    t = t_end;
-                    num_snapshot--;
-                }
-            }
-            else {
-                if(t < t_end) {
-                    t = t_end;
-                    num_snapshot--;
-                }
-            }
-            */
+            //double logt = dt0_log + num_snapshot * fmul_log;    
+            dt0_log += fmul_log;
             
+            double logt = dt0_log;
+            t = exp(logt);    
+                        
             tidymess.evolve_model(t);
         }
         else {
@@ -337,7 +321,7 @@ cerr << num_snapshot << " / " << N_snapshot << endl;
             t = tidymess.get_model_time();
         }
 
-        //t = tidymess.get_model_time();
+        t = tidymess.get_model_time();
         bodies = tidymess.get_particles();
 
         // Store a snapshot

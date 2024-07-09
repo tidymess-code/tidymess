@@ -233,9 +233,9 @@ void Body::update_aux_properties() {
     double V = 4./3*M_PI * this->R3;
     if(V > 0) this->rho = this->m / V;
     
-    for(int k=0; k<3; k++) {
-        this->vv[k] = v[k];
-    }    
+    //for(int k=0; k<3; k++) {
+    //    this->vv[k] = v[k];
+    //}    
     
     if(this->m <= 0) {
         this->particle_type = 0;        
