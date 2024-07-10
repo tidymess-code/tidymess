@@ -128,30 +128,53 @@ int main(int argc, char* argv[]) {
         if(t_begin == 0) {
             double tmin = t1_log;
             double tmax = t_end;
+        
             double logtmin = log(tmin);
-            double logtmax = log(tmax);
-               
-            double dlogt = (logtmax-logtmin)/N_snapshot;
-                
-            //logtmax = log(t_end);
-            //logtmin = logtmax - (N_snapshot+1)*dlogt;
+
+            //double tmin = t1_log/t1_log;
+            //double tmax = t_end/t1_log;
+
+            double dlogt = log2(tmax/tmin)/N_snapshot * log(2.);
+
+            logtmin = logtmin - dlogt;
+
+            dt0_log = logtmin;
+            fmul_log = dlogt;
+
+/*    
+            double tmin = t1_log/t1_log;
+            double tmax = t_end/t1_log;
+
+            double logtmin = log(t1_log);
+
+            double log2tmin = log2(tmin);
+            double log2tmax = log2(tmax);
+
+            double dlogt = (log2tmax-log2tmin)/N_snapshot * log(2.);
+
             logtmin = logtmin - dlogt;
                 
             dt0_log = logtmin;
             fmul_log = dlogt;
+cerr << dt0_log << " " << fmul_log << endl;
+exit(1);
+*/
 
         }
         else {
             double tmin = t_begin;
             double tmax = t_end;
+            
             double logtmin = log(tmin);
-            double logtmax = log(tmax);
-                
-            double dlogt = (logtmax-logtmin)/N_snapshot;
-                                
+
+            //double log2tmin = log2(tmin);
+            //double log2tmax = log2(tmax);
+            //double dlogt = (log2tmax-log2tmin)/N_snapshot * log(2.);
+
+            double dlogt = log2(tmax/tmin)/N_snapshot * log(2.);
+                                                          
             dt0_log = logtmin;
             fmul_log = dlogt;
-
         }
     }
     
@@ -211,7 +234,7 @@ int main(int argc, char* argv[]) {
 
         num_snapshot = 0;        
         t_begin = t; //init.t_begin; // t;
-        dt0_log = log(t_begin);
+        dt0_log = dt0_log_bin; //log(t_begin);
 
         if(t_end == t_end_bin) { // Finish a simulation
             dt_snapshot = dt_snapshot_bin;
@@ -222,15 +245,16 @@ int main(int argc, char* argv[]) {
             //dt_snapshot = t_sim / N_snapshot;        
 
             dt_snapshot = dt_snapshot_bin;
+            /*
+            double tmin = t_begin; //t;
+            double tmax = t_end;
 
-            //double tmin = t_begin; //t;
-            //double tmax = t_end;
-            //double logtmin = log(tmin);
-            //double logtmax = log(tmax);
+            double log2tmin = log2(tmin);
+            double log2tmax = log2(tmax);
                 
-            //double dlogt = (logtmax-logtmin)/N_snapshot;                  
-            //fmul_log = dlogt;
-
+            double dlogt = (log2tmax-log2tmin)/N_snapshot * log(2.);
+            fmul_log = dlogt;
+            */ 
             fmul_log = fmul_log_bin;
         }
     }
@@ -289,7 +313,9 @@ int main(int argc, char* argv[]) {
 
         // Integration step
         if(snapshot_mode == 0) {
-            t = t_begin + num_snapshot * dt_snapshot;
+            //t = t_begin + num_snapshot * dt_snapshot;
+            t += dt_snapshot;
+            
             /*
             if(dt_pos) {
                 if(t > t_end) {
@@ -318,7 +344,7 @@ int main(int argc, char* argv[]) {
         else {
             tidymess.evolve_model(N_snapshot);
 
-            t = tidymess.get_model_time();
+            //t = tidymess.get_model_time();
         }
 
         t = tidymess.get_model_time();
