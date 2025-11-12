@@ -65,6 +65,7 @@ void Output::set_overwrite(int overwrite) {
 
 void Output::set_units(bool physical_units, string mass_unit, string length_unit, string time_unit, string speed_unit) {
     this->physical_units = physical_units;
+    units.set_physical_units(this->physical_units);
 
     if(physical_units) {
         time_unit_output = time_unit;
